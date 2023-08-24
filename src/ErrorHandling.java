@@ -15,12 +15,18 @@ public class ErrorHandling {
                     "\n3. Ubah Data Peserta" +
                     "\n4. Hapus Peserta"+
                     "\n0. Keluar\n");
-            try {
+            choice = Integer.parseInt(menu);
+            if (menu.matches("\\d+")) {
                 choice = Integer.parseInt(menu);
-                isValid = true;
-            } catch (NumberFormatException e) {
+            } else {
                 JOptionPane.showMessageDialog(null, "Masukkan angka yang valid!");
             }
+
+            if (isValid) {
+                break;
+            }
+
+            isValid = true;
         }
         return choice;
     }
@@ -53,26 +59,38 @@ public class ErrorHandling {
     }
 
     // Mendapatkan nama yang valid
-    public static String getValidName(ParticipantManagement manager){
-        while (true){
-            String name = JOptionPane.showInputDialog("Nama:");
+    public static String getValidName(ParticipantManagement manager, Participants participantToUpdate){
+        while (true) {
+            String name;
 
-            if (name == null) {
-                break; // Kembali ke menu utama
+            if (participantToUpdate != null){
+                name = JOptionPane.showInputDialog("Nama:", participantToUpdate.getName());
+            } else {
+                name = JOptionPane.showInputDialog("Nama:");
             }
 
-            if (manager.participantExists(name)){
-                JOptionPane.showMessageDialog(null, "Peserta dengan nama yang sama sudah ada.");
+            if (name == null) {
+                return null; // Return to the main menu
+            } else if (name.equals("")) {
+                JOptionPane.showMessageDialog(null, "Nama Peserta Wajib Diisi.", "Kesalahan", JOptionPane.ERROR_MESSAGE);
+            } else if (manager.getParticipantByName(name) != null) {
+                JOptionPane.showMessageDialog(null, "Peserta dengan nama yang sama sudah ada.", "Kesalahan", JOptionPane.ERROR_MESSAGE);
+            } else if (!validateAlphabet(name)) {
+                JOptionPane.showMessageDialog(null, "Hanya boleh menginputkan huruf alfabet.", "Kesalahan", JOptionPane.ERROR_MESSAGE);
             } else {
                 return name;
             }
         }
-        return null;
     }
 
     // Validasi hanya boleh 12 digit
     public static boolean validate12DigitNumericString(String phoneNumber) {
-        return phoneNumber.matches("[0-9]{12}") && !phoneNumber.contains("-");
+        return phoneNumber.matches("[0-9]{8,13}") && !phoneNumber.contains("-");
     }
+
+    public static boolean validateAlphabet(String name){
+        return  name.matches("^[a-zA-Z -]*$");
+    }
+
 
 }
